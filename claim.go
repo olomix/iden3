@@ -77,33 +77,98 @@ const (
 	int253mask           = byte(0b11100000)
 )
 
-type Option func(*Claim)
+type Option func(*Claim) error
 
 func WithSubject(subject Subject) Option {
-	return func(c *Claim) {
+	return func(c *Claim) error {
 		c.SetSubject(subject)
+		return nil
 	}
 }
 
 func WithFlagExpiration(val bool) Option {
-	return func(c *Claim) {
+	return func(c *Claim) error {
 		c.SetFlagExpiration(val)
+		return nil
 	}
 }
 
 func WithFlagUpdatable(val bool) Option {
-	return func(c *Claim) {
+	return func(c *Claim) error {
 		c.SetFlagUpdatable(val)
+		return nil
 	}
 }
 
-func NewClaim(schemaHash SchemaHash, options ...Option) *Claim {
+func WithVersion(ver uint32) Option {
+	return func(c *Claim) error {
+		c.SetVersion(ver)
+		return nil
+	}
+}
+
+func WithIndexID(id ID) Option {
+	return func(c *Claim) error {
+		c.SetIndexID(id)
+		return nil
+	}
+}
+
+func WithValueID(id ID) Option {
+	return func(c *Claim) error {
+		c.SetValueID(id)
+		return nil
+	}
+}
+
+func WithRevocationNonce(nonce uint64) Option {
+	return func(c *Claim) error {
+		c.SetRevocationNonce(nonce)
+		return nil
+	}
+}
+
+func WithExpirationDate(dt time.Time) Option {
+	return func(c *Claim) error {
+		c.SetExpirationDate(dt)
+		return nil
+	}
+}
+
+func WithIndexSlot3(data DataSlot) Option {
+	return func(c *Claim) error {
+		return c.SetIndexSlot3(data)
+	}
+}
+
+func WithIndexSlot4(data DataSlot) Option {
+	return func(c *Claim) error {
+		return c.SetIndexSlot4(data)
+	}
+}
+
+func WithValueSlot3(data DataSlot) Option {
+	return func(c *Claim) error {
+		return c.SetValueSlot3(data)
+	}
+}
+
+func WithValueSlot4(data DataSlot) Option {
+	return func(c *Claim) error {
+		return c.SetValueSlot4(data)
+	}
+}
+
+func NewClaim(schemaHash SchemaHash, options ...Option) (*Claim, error) {
 	c := &Claim{}
 	c.SetSchemaHash(schemaHash)
 	for _, o := range options {
-		o(c)
+		err := o(c)
+		if err != nil {
+			return nil, err
+		}
 	}
-	return c
+	return c, nil
 }
 
 func (c *Claim) SetSchemaHash(schema SchemaHash) {

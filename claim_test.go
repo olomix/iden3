@@ -34,7 +34,8 @@ func int253ToString(i int253) string {
 
 func TestMerketreeEntryHash(t *testing.T) {
 	var schemaHash SchemaHash
-	claim := NewClaim(schemaHash, WithFlagExpiration(true))
+	claim, err := NewClaim(schemaHash, WithFlagExpiration(true))
+	require.NoError(t, err)
 	e := claim.TreeEntry()
 
 	hi, hv, err := e.HiHv()
