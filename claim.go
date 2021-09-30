@@ -4,6 +4,8 @@ import (
 	"encoding/binary"
 	"errors"
 	"time"
+
+	"github.com/iden3/go-merkletree-sql"
 )
 
 /*
@@ -184,4 +186,15 @@ func (c *Claim) SetValueSlot4(data DataSlot) error {
 
 func isInt253compatible(data DataSlot) bool {
 	return data[len(data)-1]&int253mask == 0
+}
+
+func (c *Claim) TreeEntry() merkletree.Entry {
+	var e merkletree.Entry
+	for i := range c.index {
+		copy(e.Data[i][:], c.index[i][:])
+	}
+	for i := range c.value {
+		copy(e.Data[i+len(c.index)][:], c.value[i][:])
+	}
+	return e
 }

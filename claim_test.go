@@ -17,8 +17,7 @@ func TestOne(t *testing.T) {
 	}
 	for i := 0; i < 32; i++ {
 		if i == 16 {
-			require.Equal(t, byte(0b1000), claim.index[0][i],
-				int253ToString(claim.index[0]))
+			require.Equal(t, byte(0b1000), claim.index[0][i], int253ToString(claim.index[0]))
 		} else {
 			require.Zero(t, claim.index[0][i], int253ToString(claim.index[0]))
 		}
@@ -31,4 +30,25 @@ func int253ToString(i int253) string {
 		b.WriteString(fmt.Sprintf("% 08b", i[j]))
 	}
 	return b.String()
+}
+
+func TestMerketreeEntryHash(t *testing.T) {
+	var schemaHash SchemaHash
+	claim := NewClaim(schemaHash, WithFlagExpiration(true))
+	e := claim.TreeEntry()
+
+	hi, hv, err := e.HiHv()
+	require.NoError(t, err)
+
+	hit, err := hi.MarshalText()
+	require.NoError(t, err)
+	require.Equal(t,
+		"19580667809762269956733050858122189693671367180755664752787058228636503413656",
+		string(hit))
+
+	hvt, err := hv.MarshalText()
+	require.NoError(t, err)
+	require.Equal(t,
+		"2351654555892372227640888372176282444150254868378439619268573230312091195718",
+		string(hvt))
 }
