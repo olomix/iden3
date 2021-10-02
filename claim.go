@@ -41,6 +41,7 @@ Value:
 */
 
 var ErrDataOverflow = errors.New("data should not take more then 253 bits")
+var ErrIncorrectIDPosition = errors.New("incorrect ID position")
 
 const schemaHashLn = 16
 
@@ -68,9 +69,15 @@ const (
 	SubjectObjectValue                   // 101
 )
 
+type IDPosition uint8
+
 const (
-	intLn                = 253 // len of integer
-	dataLn               = 4   // number of integers in Index and Value
+	idPositionUndefined IDPosition = iota
+	IDPositionIndex
+	IDPositionValue
+)
+
+const (
 	flagsByteIdx         = 16
 	flagExpirationBitIdx = 3
 	flagUpdatableBitIdx  = 4
@@ -110,6 +117,20 @@ func WithIndexID(id ID) Option {
 func WithValueID(id ID) Option {
 	return func(c *Claim) error {
 		c.SetValueID(id)
+		return nil
+	}
+}
+
+func WithID(id ID, pos IDPosition) Option {
+	return func(c *Claim) error {
+		switch pos {
+		case IDPositionIndex:
+			c.SetIndexID(id)
+		case IDPositionValue:
+			c.SetValueID(id)
+		default:
+			return ErrIncorrectIDPosition
+		}
 		return nil
 	}
 }
@@ -195,11 +216,31 @@ func (c *Claim) SetVersion(ver uint32) {
 }
 
 func (c *Claim) SetIndexID(id ID) {
+	c.resetValueID()
+	c.setSubject(SubjectOtherIdenIndex)
 	copy(c.index[1][:], id[:])
 }
 
+func (c *Claim) resetIndexID() {
+	var zeroID ID
+	copy(c.index[1][:], zeroID[:])
+}
+
 func (c *Claim) SetValueID(id ID) {
+	c.resetIndexID()
+	c.setSubject(SubjectOtherIdenValue)
 	copy(c.value[1][:], id[:])
+}
+
+func (c *Claim) resetValueID() {
+	var zeroID ID
+	copy(c.value[1][:], zeroID[:])
+}
+
+func (c *Claim) ResetID() {
+	c.resetIndexID()
+	c.resetValueID()
+	c.setSubject(SubjectSelf)
 }
 
 func (c *Claim) SetRevocationNonce(nonce uint64) {
