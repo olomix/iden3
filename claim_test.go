@@ -10,7 +10,8 @@ import (
 
 func TestOne(t *testing.T) {
 	var schemaHash SchemaHash
-	claim := NewClaim(schemaHash, WithFlagExpiration(true))
+	claim, err := NewClaim(schemaHash, WithFlagExpiration(true))
+	require.NoError(t, err)
 	require.Zero(t, claim.value)
 	for i := 1; i < 4; i++ {
 		require.Zero(t, claim.index[i])

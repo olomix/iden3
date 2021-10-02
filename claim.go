@@ -79,13 +79,6 @@ const (
 
 type Option func(*Claim) error
 
-func WithSubject(subject Subject) Option {
-	return func(c *Claim) error {
-		c.SetSubject(subject)
-		return nil
-	}
-}
-
 func WithFlagExpiration(val bool) Option {
 	return func(c *Claim) error {
 		c.SetFlagExpiration(val)
@@ -175,7 +168,7 @@ func (c *Claim) SetSchemaHash(schema SchemaHash) {
 	copy(c.index[0][:schemaHashLn], schema[:])
 }
 
-func (c *Claim) SetSubject(s Subject) {
+func (c *Claim) setSubject(s Subject) {
 	// clean first 3 bits
 	c.index[0][9] &= 0b11111000
 	c.index[0][9] |= byte(s)
