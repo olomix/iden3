@@ -16,4 +16,4 @@ jobs:
           echo github.event.pull_request.merged ${{ github.event.pull_request.merged }}
           pwd
           ls -la
-          go test ./..
+          go test -v -race ./...
