@@ -37,8 +37,8 @@ jobs:
           echo "[1] circuits url ${CIRCUITS_URL}"
 
       - name: Cache circuits if ETag is present
-        if: env.CIRCUITS_ETAG != ''
-        run: "ETAG is OK"
+        if: env.CIRCUITS_ETAG2 != ''
+        run: echo "ETAG is OK"
 
       - name: Show circuits url
         run: echo "[2] circuits url ${{ env.CIRCUITS_URL }} | ${{ env.CIRCUITS_ETAG }}"
