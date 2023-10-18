@@ -47,7 +47,7 @@ jobs:
         uses: actions/cache/restore@v3
         with:
           path: circuits
-          key: ${{ env.CIRCUITS_FILE }}-${{ env.CIRCUITS_ETAG }}
+          key: ${{ env.CIRCUITS_FILE }}-${{ env.CIRCUITS_ETAG }}-2
 
       - name: Show circuits url
         run: echo '[2] circuits url -${{ env.CIRCUITS_URL }}- | -${{ env.CIRCUITS_ETAG }}-'
@@ -76,4 +76,4 @@ jobs:
         uses: actions/cache/save@v3
         with:
           path: circuits
-          key: ${{ env.CIRCUITS_FILE }}-${{ env.CIRCUITS_ETAG }}
+          key: ${{ env.CIRCUITS_FILE }}-${{ env.CIRCUITS_ETAG }}-2
