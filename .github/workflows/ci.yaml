@@ -58,8 +58,8 @@ jobs:
         run: |
           mkdir circuits
           cd circuits
-          curl -D ${{ env.CIRCUITS_FILE }}.headers -o ${{ env.CIRCUITS_FILE }} ${{ env.CIRCUITS_URL }}
-          unzip ${{ env.CIRCUITS_FILE }}
+          # curl -D ${{ env.CIRCUITS_FILE }}.headers -o ${{ env.CIRCUITS_FILE }} ${{ env.CIRCUITS_URL }}
+          # unzip ${{ env.CIRCUITS_FILE }}
           etag=$(grep -i 'ETag:' < "${{ env.CIRCUITS_FILE }}.headers" | awk -F': ' '{print $2}')
           etag="${etag%\"}"
           etag="${etag#\"}"
