@@ -12,6 +12,7 @@ jobs:
       - name: Find circuits
         run: |
           set -e
+          set -x
           mkdir circuits
           urls=("https://iden3-circuits-bucket.s3.eu-west-1.amazonaws.com/branch/ci.zip", "https://iden3-circuits-bucket.s3.eu-west-1.amazonaws.com/ci.zip", "http://google.com")
           for url in "${urls[@]}"; do
