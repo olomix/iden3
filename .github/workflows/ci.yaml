@@ -28,33 +28,52 @@ jobs:
               echo "CIRCUITS_FILE=${CIRCUITS_FILE}" >> $GITHUB_ENV
           
               etag=$(echo "$output" | grep -i 'ETag:' | awk -F': ' '{print $2}')
+              etag="${etag%\"}"
+              etag="${etag#\"}"
               if [ -n "$etag" ]; then
-                export CIRCUITS_ETAG="$etag"
                 echo "CIRCUITS_ETAG=$etag" >> $GITHUB_ENV
               fi
               
               break
             fi
           done
-          echo "[1] circuits url ${CIRCUITS_URL}"
 
 #      - name: temp values
 #        run: |
 #          echo "CIRCUITS_URL=${CIRCUITS_URL}}" >> $GITHUB_ENV
 #          echo "CIRCUITS_FILE=${CIRCUITS_FILE}}" >> $GITHUB_ENV
 
-      - name: Cache circuits if ETag is present
-        id: circuits-cache
-        if: env.CIRCUITS_ETAG2 != ''
-        run: echo "ETAG is OK"
+      - name: Restore circuits from cache if ETag is present
+        id: circuits-restore
+        if: env.CIRCUITS_ETAG != ''
+        uses: actions/cache/restore@v3
+        with:
+          path: circuits
+          key: ${{ env.CIRCUITS_FILE }}-${{ env.CIRCUITS_ETAG }}
 
       - name: Show circuits url
         run: echo "[2] circuits url -${{ env.CIRCUITS_URL }}- | -${{ env.CIRCUITS_ETAG }}-"
 
       - name: Download circuits if cache missed
-        if: steps.circuits-cache.outputs.cache-hit != 'true'
+        if: steps.circuits-restore.outputs.cache-hit != 'true'
         run: |
-          echo "Get new circuits"
           mkdir circuits
           cd circuits
           curl -D ${{ env.CIRCUITS_FILE }}.headers -o ${{ env.CIRCUITS_FILE }} ${{ env.CIRCUITS_URL }}
+          unzip ${{ env.CIRCUITS_FILE }}
+          etag=$(grep -i 'ETag:' < "${{ env.CIRCUITS_FILE }}.headers" | awk -F': ' '{print $2}')
+          etag="${etag%\"}"
+          etag="${etag#\"}"
+          if [ -n "$etag" ]; then
+            echo "CIRCUITS_ETAG=$etag" >> $GITHUB_ENV
+          fi
+
+      - name: Show circuits url
+        run: echo "[3] circuits url -${{ env.CIRCUITS_URL }}- | -${{ env.CIRCUITS_ETAG }}-"
+
+      - name: Save circuits to cache if ETag is present
+        if: env.CIRCUITS_ETAG != ''
+        uses: actions/cache/save@v3
+        with:
+          path: circuits
+          key: ${{ env.CIRCUITS_FILE }}-${{ env.CIRCUITS_ETAG }}
