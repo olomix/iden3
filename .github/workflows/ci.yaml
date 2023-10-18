@@ -53,6 +53,7 @@ jobs:
         run: echo '[2] circuits url -${{ env.CIRCUITS_URL }}- | -${{ env.CIRCUITS_ETAG }}-'
 
       - name: Download circuits if cache missed
+        id: circuits-download
         if: steps.circuits-restore.outputs.cache-hit != 'true'
         run: |
           set -e
@@ -66,7 +67,9 @@ jobs:
           fi
 
       - name: Show circuits url
-        run: echo "[3] circuits url -${{ env.CIRCUITS_URL }}- | -${{ env.CIRCUITS_ETAG }}-"
+        run: |
+          echo "[3] circuits url -${{ env.CIRCUITS_URL }}- | -${{ env.CIRCUITS_ETAG }}-"
+          echo "[4] ${{ steps.circuits-download.outcome }}"
 
       - name: Save circuits to cache if ETag is present
         if: env.CIRCUITS_ETAG != ''
