@@ -10,10 +10,10 @@ jobs:
     steps:
 #      - uses: actions/checkout@v3
       - name: Find circuits
+        if: false
         run: |
           set -e
           set -x
-          mkdir circuits
           urls=("https://iden3-circuits-bucket.s3.eu-west-1.amazonaws.com/branch/ci.zip" "https://iden3-circuits-bucket.s3.eu-west-1.amazonaws.com/ci.zip" "http://google.com")
           for url in "${urls[@]}"; do
             echo "do loop for $url"
@@ -22,8 +22,10 @@ jobs:
             echo "status code: ${status_code}"
             if [ "$status_code" -eq 200 ]; then
               echo "found $url"
-              echo "CIRCUITS_URL=$url" >> $GITHUB_ENV
               export CIRCUITS_URL=$url
+              export CIRCUITS_FILE="${CIRCUITS_URL##*/}"
+              echo "CIRCUITS_URL=${CIRCUITS_URL}}" >> $GITHUB_ENV
+              echo "CIRCUITS_FILE=${CIRCUITS_FILE}}" >> $GITHUB_ENV
           
               etag=$(echo "$output" | grep -i 'ETag:' | awk -F': ' '{print $2}')
               if [ -n "$etag" ]; then
@@ -36,9 +38,23 @@ jobs:
           done
           echo "[1] circuits url ${CIRCUITS_URL}"
 
+#      - name: temp values
+#        run: |
+#          echo "CIRCUITS_URL=${CIRCUITS_URL}}" >> $GITHUB_ENV
+#          echo "CIRCUITS_FILE=${CIRCUITS_FILE}}" >> $GITHUB_ENV
+
       - name: Cache circuits if ETag is present
+        id: circuits-cache
         if: env.CIRCUITS_ETAG2 != ''
         run: echo "ETAG is OK"
 
       - name: Show circuits url
-        run: echo "[2] circuits url ${{ env.CIRCUITS_URL }} | ${{ env.CIRCUITS_ETAG }}"
+        run: echo "[2] circuits url -${{ env.CIRCUITS_URL }}- | -${{ env.CIRCUITS_ETAG }}-"
+
+      - name: Download circuits if cache missed
+        if: steps.circuits-cache.outputs.cache-hit != 'true'
+        run: |
+          echo "Get new circuits"
+          mkdir circuits
+          cd circuits
+          curl -D ${{ env.CIRCUITS_FILE }}.headers -o ${{ env.CIRCUITS_FILE }} ${{ env.CIRCUITS_URL }}
