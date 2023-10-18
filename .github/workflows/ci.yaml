@@ -11,7 +11,7 @@ jobs:
       - name: Find circuits URL & ETag
         run: |
           set -e
-          urls=("https://iden3-circuits-bucket.s3.eu-west-1.amazonaws.com/${GITHUB_REF_NAME}.zip" "https://iden3-circuits-bucket.s3.eu-west-1.amazonaws.com/ci.zip")
+          urls=("https://iden3-circuits-bucket.s3.eu-west-1.amazonaws.com/${GITHUB_REF_NAME}.zip" "https://iden3-circuits-bucket.s3.eu-west-1.amazonaws.com/ci-1.zip")
           for url in "${urls[@]}"; do
             output=$(curl -sI "$url")
             status_code=$(echo "$output" | grep -o 'HTTP/[0-9].[0-9] [0-9]*' | awk '{print $2}')
@@ -27,6 +27,10 @@ jobs:
               break
             fi
           done
+          if [ -z "${CIRCUITS_URL}" ]; then
+            echo "Error: circuits not found."
+            exit 1
+          fi
 
       - name: Restore circuits from cache if ETag is present
         id: circuits-restore
