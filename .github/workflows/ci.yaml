@@ -30,6 +30,7 @@ jobs:
               etag=$(echo "$output" | grep -i 'ETag:' | awk -F': ' '{print $2}' | tr -d '\n"')
               if [ -n "$etag" ]; then
                 echo "CIRCUITS_ETAG=$etag" >> $GITHUB_ENV
+                echo "etag=/${etag}/"
               fi
               
               break
@@ -70,7 +71,7 @@ jobs:
         run: echo "[3] circuits url -${{ env.CIRCUITS_URL }}- | -${{ env.CIRCUITS_ETAG }}-"
 
       - name: Save circuits to cache if ETag is present
-        if: env.CIRCUITS_ETAG != ''
+        if: env.CIRCUITS_ETAG != '' && false
         uses: actions/cache/save@v3
         with:
           path: circuits
