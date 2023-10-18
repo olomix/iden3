@@ -24,10 +24,17 @@ jobs:
               echo "found $url"
               echo "CIRCUITS_URL=$url" >> $GITHUB_ENV
               export CIRCUITS_URL=$url
+          
+              etag=$(echo "$output" | grep -i 'ETag:' | awk -F': ' '{print $2}')
+              if [ -n "$etag" ]; then
+                export CIRCUITS_ETAG="$etag"
+                echo "CIRCUITS_ETAG=$etag" >> $GITHUB_ENV
+              fi
+              
               break
             fi
           done
           echo "[1] circuits url ${CIRCUITS_URL}"
 
       - name: Show circuits url
-        run: echo "[2] circuits url ${{ env.CIRCUITS_URL }}"
+        run: echo "[2] circuits url ${{ env.CIRCUITS_URL }} | ${{ env.CIRCUITS_ETAG }}"
