@@ -72,7 +72,7 @@ jobs:
           echo "[4] ${{ steps.circuits-download.outcome }}"
 
       - name: Save circuits to cache if ETag is present
-        if: env.CIRCUITS_ETAG != ''
+        if: env.CIRCUITS_ETAG != '' && steps.circuits-download.outcome == 'success'
         uses: actions/cache/save@v3
         with:
           path: circuits
