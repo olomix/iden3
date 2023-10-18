@@ -28,8 +28,6 @@ jobs:
               echo "CIRCUITS_FILE=${CIRCUITS_FILE}" >> $GITHUB_ENV
           
               etag=$(echo "$output" | grep -i 'ETag:' | awk -F': ' '{print $2}')
-              etag="${etag%\"}"
-              etag="${etag#\"}"
               if [ -n "$etag" ]; then
                 echo "CIRCUITS_ETAG=$etag" >> $GITHUB_ENV
               fi
@@ -52,7 +50,7 @@ jobs:
           key: ${{ env.CIRCUITS_FILE }}-${{ env.CIRCUITS_ETAG }}
 
       - name: Show circuits url
-        run: echo "[2] circuits url -${{ env.CIRCUITS_URL }}- | -${{ env.CIRCUITS_ETAG }}-"
+        run: echo '[2] circuits url -${{ env.CIRCUITS_URL }}- | -${{ env.CIRCUITS_ETAG }}-'
 
       - name: Download circuits if cache missed
         if: steps.circuits-restore.outputs.cache-hit != 'true'
