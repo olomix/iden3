@@ -27,7 +27,7 @@ jobs:
               echo "CIRCUITS_URL=${CIRCUITS_URL}" >> $GITHUB_ENV
               echo "CIRCUITS_FILE=${CIRCUITS_FILE}" >> $GITHUB_ENV
           
-              etag=$(echo "$output" | grep -i 'ETag:' | awk -F': ' '{print $2}' | tr -d '\n"')
+              etag=$(echo "$output" | grep -i 'ETag:' | awk -F': ' '{print $2}' | tr -d '\n\r"')
               if [ -n "$etag" ]; then
                 echo "CIRCUITS_ETAG=$etag" >> $GITHUB_ENV
                 echo "etag=/${etag}/"
