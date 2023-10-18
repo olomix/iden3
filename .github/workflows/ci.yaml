@@ -22,6 +22,11 @@ jobs:
             echo "status code: ${status_code}"
             if [ "$status_code" -eq 200 ]; then
               echo "found $url"
+              export circuits_url=$url
               break
             fi
           done
+          echo "[1] circuits url ${circuits_url}"
+
+      - name: Show circuits url
+        run: echo "[2] circuits url ${circuits_url}"
