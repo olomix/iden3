@@ -8,24 +8,18 @@ jobs:
   test:
     runs-on: ubuntu-20.04
     steps:
-#      - uses: actions/checkout@v3
-      - name: Find circuits
-#        if: false
+      - name: Find circuits URL & ETag
         run: |
           set -e
           set -x
-          urls=("https://iden3-circuits-bucket.s3.eu-west-1.amazonaws.com/branch/ci.zip" "https://iden3-circuits-bucket.s3.eu-west-1.amazonaws.com/ci.zip" "http://google.com")
+          echo "branch = /${GITHUB_REF_NAME}/"
+          urls=("https://iden3-circuits-bucket.s3.eu-west-1.amazonaws.com/branch/ci.zip" "https://iden3-circuits-bucket.s3.eu-west-1.amazonaws.com/ci.zip")
           for url in "${urls[@]}"; do
-            echo "do loop for $url"
             output=$(curl -sI "$url")
             status_code=$(echo "$output" | grep -o 'HTTP/[0-9].[0-9] [0-9]*' | awk '{print $2}')
-            echo "status code: ${status_code}"
             if [ "$status_code" -eq 200 ]; then
-              echo "found $url"
-              export CIRCUITS_URL=$url
-              export CIRCUITS_FILE="${CIRCUITS_URL##*/}"
-              echo "CIRCUITS_URL=${CIRCUITS_URL}" >> $GITHUB_ENV
-              echo "CIRCUITS_FILE=${CIRCUITS_FILE}" >> $GITHUB_ENV
+              echo "CIRCUITS_URL=${url}" >> $GITHUB_ENV
+              echo "CIRCUITS_FILE=${url##*/}" >> $GITHUB_ENV
           
               etag=$(echo "$output" | grep -i 'ETag:' | awk -F': ' '{print $2}' | tr -d '\n\r"')
               if [ -n "$etag" ]; then
@@ -35,11 +29,6 @@ jobs:
               break
             fi
           done
-
-#      - name: temp values
-#        run: |
-#          echo "CIRCUITS_URL=${CIRCUITS_URL}}" >> $GITHUB_ENV
-#          echo "CIRCUITS_FILE=${CIRCUITS_FILE}}" >> $GITHUB_ENV
 
       - name: Restore circuits from cache if ETag is present
         id: circuits-restore
@@ -65,11 +54,6 @@ jobs:
           if [ -n "$etag" ]; then
             echo "CIRCUITS_ETAG=$etag" >> $GITHUB_ENV
           fi
-
-      - name: Show circuits url
-        run: |
-          echo "[3] circuits url -${{ env.CIRCUITS_URL }}- | -${{ env.CIRCUITS_ETAG }}-"
-          echo "[4] ${{ steps.circuits-download.outcome }}"
 
       - name: Save circuits to cache if ETag is present
         if: env.CIRCUITS_ETAG != '' && steps.circuits-download.outcome == 'success'
