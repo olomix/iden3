@@ -59,7 +59,7 @@ handle_sigchld() {
 }
 
 newman run \
-  .github/testcases/get_registry_manifests.postman_collection_error.json \
+  .github/testcases/get_registry_manifests.postman_collection.json \
   --bail --verbose > newman-error.out 2>&1 &
 pids+=($!)
 types[$!]="newman-error"
