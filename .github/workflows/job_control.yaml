@@ -14,3 +14,5 @@ jobs:
       id: run-jc
     - run: |
         echo "Job Control: ${{ steps.run-jc.outcome }}"
+    - run: cat newman-error.out
+    - run: cat newman-ok.out

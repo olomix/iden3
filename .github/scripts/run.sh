@@ -2,6 +2,8 @@
 
 set -m # Enable Job Control (handle SIGCHLD)
 
+npm install -g newman || exit 1
+
 exit_status=0
 pids=()
 declare types
@@ -53,26 +55,21 @@ handle_sigchld() {
 
 trap 'handle_sigchld' CHLD
 
-process1() {
-  echo "$(date) process1 start"
-  sleep 5
-  echo "$(date) process1 done"
-}
-
-process2() {
-  echo "$(date) process2 start"
-  sleep 2
-  echo "$(date) process2 done"
-  exit 5
-}
-
-process1 > ./process1.out 2>&1 &
+newman run \
+  .github/testcases/get_registry_manifests.postman_collection_error.json \
+  --bail --verbose > newman-error.out 2>&1 &
 pids+=($!)
-types[$!]="process1"
-process2 > ./process2.out 2>&1 &
+types[$!]="newman-error"
+
+newman run \
+  .github/testcases/get_registry_manifests.postman_collection.json \
+  --bail --verbose > newman-ok.out 2>&1 &
 pids+=($!)
-types[$!]="process2"
+types[$!]="newman-ok"
+
 echo "begin wait"
 wait
+
+trap ' ' CHLD
 echo "exit status ${exit_status}"
 exit $exit_status
