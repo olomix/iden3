@@ -12,7 +12,7 @@ jobs:
     - run: .github/scripts/run.sh
       continue-on-error: true
       id: run-jc
-    - run: |
-        echo "Job Control: ${{ steps.run-jc.outcome }}"
     - run: cat newman-error.out
     - run: cat newman-ok.out
+    - run: exit 1
+      if: steps.run-jc.outcome != 'success'
