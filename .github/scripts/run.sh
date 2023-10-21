@@ -19,12 +19,14 @@ remove_pid() {
 }
 
 stop_all() {
-  echo "stop all"
+  echo "stop all unfinished processes"
   for pid in "${pids[@]}"; do
+    echo "stopping pid ${pid}"
     kill -TERM $pid
   done
   for pid in "${pids[@]}"; do
     wait $pid
+    echo "pid ${pid} stopped with $?"
   done
 }
 
@@ -70,6 +72,7 @@ types[$!]="process1"
 process2 > ./process2.out 2>&1 &
 pids+=($!)
 types[$!]="process2"
+echo "begin wait"
 wait
 echo "exit status ${exit_status}"
 exit $exit_status
